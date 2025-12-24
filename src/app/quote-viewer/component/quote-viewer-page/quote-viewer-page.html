@@ -1,0 +1,17 @@
+<app-quote-viewer
+  [quote]='quoteViewerService.quote$ | async'
+  [canShowNext]='quoteViewerService.canShowNext$ | async'
+  [canShowPrevious]='quoteViewerService.canShowPrevious$ | async'
+  [canPlaySlideshow]='quoteViewerService.canPlaySlideshow$ | async'
+  [canPauseSlideshow]='quoteViewerService.canPauseSlideshow$ | async'
+  [slideshowProgress]='quoteViewerService.slideshowProgress$ | async'
+  [canShowOnlyBookmarked]='quoteViewerService.canShowOnlyBookmarked$ | async'
+  [showOnlyBookmarked]='quoteViewerService.showOnlyBookmarked$ | async'
+  (showNext)='quoteViewerService.showNext()'
+  (showPrevious)='quoteViewerService.showPrevious()'
+  (playSlideshow)='quoteViewerService.playSlideshow()'
+  (pauseSlideshow)='quoteViewerService.pauseSlideshow()'
+  (toggleSlideshowPlayback)='quoteViewerService.toggleSlideshowPlayback()'
+  (toggleBookmark)='quoteViewerService.toggleBookmark()'
+  (toggleShowOnlyBookmarked)='quoteViewerService.toggleShowOnlyBookmarked()'
+/>

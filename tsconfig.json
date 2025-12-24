@@ -18,7 +18,10 @@
     "paths": {
       "@app-quote-viewer/*": [
         "src/app/quote-viewer/*"
-      ]
+      ],
+      "@app-model": [
+        "src/app/_model/"
+      ],
     }
   },
   "angularCompilerOptions": {

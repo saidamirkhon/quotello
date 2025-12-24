@@ -1,0 +1,33 @@
+<p>{{ quote()?.text }}</p>
+<p>{{ quote()?.author }}</p>
+<button
+  [disabled]='!canShowNext()'
+  (click)='showNext.emit()'
+>Next quote
+</button>
+<button
+  [disabled]='!canShowPrevious()'
+  (click)='showPrevious.emit()'
+>Previous quote
+</button>
+<button
+  [disabled]='!canPlaySlideshow()'
+  (click)='playSlideshow.emit()'
+>Play
+</button>
+<button
+  [disabled]='!canPauseSlideshow()'
+  (click)='pauseSlideshow.emit()'
+>Pause
+</button>
+<p>{{ slideshowProgress() }}</p>
+<button
+  [class.is-bookmarked]='quote()?.isBookmarked'
+  (click)='toggleBookmark.emit()'
+>Toggle bookmark
+</button>
+<input
+  type='checkbox'
+  [value]='showOnlyBookmarked()'
+  (click)='toggleShowOnlyBookmarked.emit()'
+>

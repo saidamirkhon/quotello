@@ -3,7 +3,10 @@ import {
   Injectable,
 } from '@angular/core';
 import { LocalStorageKey } from '@app-model';
-import { Quote } from '@app-quote-viewer/model';
+import {
+  Filter,
+  Quote,
+} from '@app-quote-viewer/model';
 import { QuoteViewerApiService } from '@app-quote-viewer/service/quote-viewer-api.service';
 import { QuoteViewerActions } from '@app-quote-viewer/store/actions';
 import { QuoteViewerSelectors } from '@app-quote-viewer/store/selectors';
@@ -39,19 +42,19 @@ export class QuoteViewerEffects {
         ofType(QuoteViewerActions.init),
         switchMap(
           () => {
-            const actionList: Observable<Action>[] = [];
+            const actionList$: Observable<Action>[] = [];
             const bookmarkedQuoteListRaw = localStorage.getItem(LocalStorageKey.BOOKMARKED_QUOTE_LIST);
             if (bookmarkedQuoteListRaw) {
               try {
                 const bookmarkedQuoteList = JSON.parse(bookmarkedQuoteListRaw);
                 if (Array.isArray(bookmarkedQuoteList) && bookmarkedQuoteList.length > 0) {
-                  actionList.push(of(QuoteViewerActions.setBookmarkedQuoteList({ bookmarkedQuoteList })));
+                  actionList$.push(of(QuoteViewerActions.setBookmarkedQuoteList({ bookmarkedQuoteList })));
                 }
               } catch (e) {
               }
             }
-            actionList.push(
-              of(QuoteViewerActions.setLoading({ loading: true })),
+            actionList$.push(
+              of(QuoteViewerActions.setIsLoading({ isLoading: true })),
               this.quoteViewerApiService.fetchQuote()
                 .pipe(
                   switchMap(
@@ -59,7 +62,7 @@ export class QuoteViewerEffects {
                       return from(
                         [
                           QuoteViewerActions.fetchQuoteSuccess({ quote }),
-                          QuoteViewerActions.setLoading({ loading: false }),
+                          QuoteViewerActions.setIsLoading({ isLoading: false }),
                           QuoteViewerActions.setActiveIndex({ activeIndex: 0 }),
                         ],
                       );
@@ -67,13 +70,13 @@ export class QuoteViewerEffects {
                   ),
                   catchError(
                     () => {
-                      return of(QuoteViewerActions.setLoading({ loading: false }));
+                      return of(QuoteViewerActions.setIsLoading({ isLoading: false }));
                     },
                   ),
                 ),
             );
             return concat(
-              ...actionList,
+              ...actionList$,
             );
           },
         ),
@@ -86,7 +89,7 @@ export class QuoteViewerEffects {
         ofType(QuoteViewerActions.showNext),
         withLatestFrom(
           this.store.select(QuoteViewerSelectors.selectActiveIndex),
-          this.store.select(QuoteViewerSelectors.selectQuoteList),
+          this.store.select(QuoteViewerSelectors.selectFilteredQuoteList),
           this.store.select(QuoteViewerSelectors.selectCanShowNext),
         ),
         switchMap(
@@ -94,7 +97,7 @@ export class QuoteViewerEffects {
             [
               _,
               activeIndex,
-              quoteList,
+              filteredQuoteList,
               canShowNext,
             ]: [
               Action,
@@ -104,11 +107,11 @@ export class QuoteViewerEffects {
             ],
           ) => {
             const newActiveIndex = activeIndex + 1;
-            if (canShowNext && newActiveIndex <= quoteList.length - 1) {
+            if (canShowNext && newActiveIndex <= filteredQuoteList.length - 1) {
               return of(QuoteViewerActions.setActiveIndex({ activeIndex: newActiveIndex }));
             }
             return concat(
-              of(QuoteViewerActions.setLoading({ loading: true })),
+              of(QuoteViewerActions.setIsLoading({ isLoading: true })),
               this.quoteViewerApiService.fetchQuote()
                 .pipe(
                   switchMap(
@@ -116,7 +119,7 @@ export class QuoteViewerEffects {
                       return from(
                         [
                           QuoteViewerActions.fetchQuoteSuccess({ quote }),
-                          QuoteViewerActions.setLoading({ loading: false }),
+                          QuoteViewerActions.setIsLoading({ isLoading: false }),
                           QuoteViewerActions.setActiveIndex({ activeIndex: newActiveIndex }),
                         ],
                       );
@@ -124,7 +127,7 @@ export class QuoteViewerEffects {
                   ),
                   catchError(
                     () => {
-                      return of(QuoteViewerActions.setLoading({ loading: false }));
+                      return of(QuoteViewerActions.setIsLoading({ isLoading: false }));
                     },
                   ),
                 ),
@@ -158,6 +161,151 @@ export class QuoteViewerEffects {
               return of(QuoteViewerActions.setActiveIndex({ activeIndex: activeIndex - 1 }));
             }
             return EMPTY;
+          },
+        ),
+      ),
+  );
+
+  toggleBookmark$ = createEffect(
+    () => this.actions
+      .pipe(
+        ofType(QuoteViewerActions.toggleBookmark),
+        withLatestFrom(
+          this.store.select(QuoteViewerSelectors.selectQuote),
+          this.store.select(QuoteViewerSelectors.selectFilteredQuoteList),
+          this.store.select(QuoteViewerSelectors.selectFilter),
+        ),
+        switchMap(
+          (
+            [
+              _,
+              quote,
+              filteredQuoteList,
+              filter,
+            ]: [
+              Action,
+                Quote | null,
+              Quote[],
+              Filter,
+            ],
+          ) => {
+            if (!quote) {
+              return EMPTY;
+            }
+            const actionList$: Observable<Action>[] = [];
+            if (quote.isBookmarked) {
+              actionList$.push(of(QuoteViewerActions.unbookmark({ quoteId: quote.id })));
+              if (filter === Filter.BOOKMARKED && filteredQuoteList.length === 1) {
+                actionList$.push(of(QuoteViewerActions.setActiveIndex({ activeIndex: -1 })));
+              }
+            } else {
+              actionList$.push(of(QuoteViewerActions.bookmark({ quoteId: quote.id })));
+            }
+            actionList$.push(of(QuoteViewerActions.saveBookmarkedQuoteListToLocalStorage()));
+            return concat(...actionList$);
+          },
+        ),
+      ),
+  );
+
+  saveBookmarkedQuoteListToLocalStorage$ = createEffect(
+    () => this.actions
+      .pipe(
+        ofType(QuoteViewerActions.saveBookmarkedQuoteListToLocalStorage),
+        withLatestFrom(
+          this.store.select(QuoteViewerSelectors.selectBookmarkedQuoteList),
+        ),
+        switchMap(
+          (
+            [
+              _,
+              bookmarkedQuoteList,
+            ]: [
+              Action,
+              Quote[]
+            ],
+          ) => {
+            localStorage.setItem(
+              LocalStorageKey.BOOKMARKED_QUOTE_LIST,
+              JSON.stringify(bookmarkedQuoteList),
+            );
+            return EMPTY;
+          },
+        ),
+      ),
+    { dispatch: false },
+  );
+
+  toggleFilter$ = createEffect(
+    () => this.actions
+      .pipe(
+        ofType(QuoteViewerActions.toggleFilter),
+        withLatestFrom(
+          this.store.select(QuoteViewerSelectors.selectFilter),
+          this.store.select(QuoteViewerSelectors.selectQuoteList),
+          this.store.select(QuoteViewerSelectors.selectBookmarkedQuoteList),
+        ),
+        switchMap(
+          (
+            [
+              _,
+              filter,
+              quoteList,
+              bookmarkedQuoteList,
+            ]: [
+              Action,
+              Filter,
+              Quote[],
+              Quote[],
+            ],
+          ) => {
+            const actionList$: Observable<Action>[] = [];
+            switch (filter) {
+              case Filter.ALL:
+                actionList$
+                  .push(
+                    of(
+                      QuoteViewerActions
+                        .setFilter(
+                          { filter: Filter.BOOKMARKED },
+                        ),
+                    ),
+                    of(
+                      QuoteViewerActions
+                        .setActiveIndex(
+                          {
+                            activeIndex: bookmarkedQuoteList.length === 0
+                              ? -1
+                              : 0,
+                          },
+                        ),
+                    ),
+                  );
+                break;
+              case Filter.BOOKMARKED:
+                actionList$
+                  .push(
+                    of(
+                      QuoteViewerActions
+                        .setFilter
+                        (
+                          { filter: Filter.ALL },
+                        ),
+                    ),
+                    of(
+                      QuoteViewerActions
+                        .setActiveIndex(
+                          {
+                            activeIndex: quoteList.length === 0
+                              ? -1
+                              : 0,
+                          },
+                        ),
+                    ),
+                  );
+                break;
+            }
+            return concat(...actionList$);
           },
         ),
       ),

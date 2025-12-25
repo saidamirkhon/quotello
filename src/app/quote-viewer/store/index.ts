@@ -40,14 +40,14 @@ export module QuoteViewerStore {
   export const reducer: ActionReducer<State> = createReducer<State>(
     initialState,
     on(
-      QuoteViewerActions.setLoading,
+      QuoteViewerActions.setIsLoading,
       (
         state: State,
-        { loading },
+        { isLoading },
       ): State => {
         return {
           ...state,
-          isLoading: loading,
+          isLoading,
         };
       },
     ),
@@ -87,6 +87,77 @@ export module QuoteViewerStore {
         return {
           ...state,
           bookmarkedQuoteList,
+        };
+      },
+    ),
+    on(
+      QuoteViewerActions.bookmark,
+      (
+        state: State,
+        { quoteId },
+      ): State => {
+        let bookmarkedQuoteIndex = -1;
+        return {
+          ...state,
+          quoteList: state.quoteList
+            .map(
+              (
+                quote: Quote,
+                index: number,
+              ) => {
+                if (quote.id === quoteId) {
+                  bookmarkedQuoteIndex = index;
+                  return {
+                    ...quote,
+                    isBookmarked: true,
+                  };
+                }
+                return quote;
+              },
+            ),
+          bookmarkedQuoteList: [
+            ...state.bookmarkedQuoteList,
+            {
+              ...state.quoteList[bookmarkedQuoteIndex],
+              isBookmarked: true,
+            },
+          ],
+        };
+      },
+    ),
+    on(
+      QuoteViewerActions.unbookmark,
+      (
+        state: State,
+        { quoteId },
+      ): State => {
+        return {
+          ...state,
+          quoteList: state.quoteList
+            .map(
+              (quote: Quote) => {
+                if (quote.id === quoteId) {
+                  return {
+                    ...quote,
+                    isBookmarked: false,
+                  };
+                }
+                return quote;
+              },
+            ),
+          bookmarkedQuoteList: state.bookmarkedQuoteList.filter((quote: Quote) => quote.id !== quoteId),
+        };
+      },
+    ),
+    on(
+      QuoteViewerActions.setFilter,
+      (
+        state: State,
+        { filter },
+      ): State => {
+        return {
+          ...state,
+          filter,
         };
       },
     ),

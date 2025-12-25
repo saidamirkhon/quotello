@@ -22,14 +22,16 @@ export module QuoteViewerSelectors {
   );
   export const selectQuoteList = createSelector(
     selectState,
+    (state: QuoteViewerStore.State) => state.quoteList,
+  );
+  export const selectFilteredQuoteList = createSelector(
+    selectState,
     (state: QuoteViewerStore.State) => {
       switch (state.filter) {
         case Filter.ALL:
           return state.quoteList;
         case Filter.BOOKMARKED:
           return state.bookmarkedQuoteList;
-        default:
-          throw new Error('Unknown filter');
       }
     },
   );
@@ -38,7 +40,7 @@ export module QuoteViewerSelectors {
     (state: QuoteViewerStore.State) => state.activeIndex,
   );
   export const selectQuote = createSelector(
-    selectQuoteList,
+    selectFilteredQuoteList,
     selectActiveIndex,
     (
       quoteList: Quote[],
@@ -51,8 +53,17 @@ export module QuoteViewerSelectors {
   );
   export const selectCanShowNext = createSelector(
     selectState,
-    (state: QuoteViewerStore.State) => {
-      return state.displayMode === DisplayMode.MANUAL && !state.isLoading;
+    selectFilteredQuoteList,
+    (
+      state: QuoteViewerStore.State,
+      quoteList: Quote[],
+    ) => {
+      switch (state.filter) {
+        case Filter.ALL:
+          return state.displayMode === DisplayMode.MANUAL && !state.isLoading;
+        case Filter.BOOKMARKED:
+          return state.activeIndex < quoteList.length - 1;
+      }
     },
   );
   export const selectCanShowPrevious = createSelector(
@@ -96,5 +107,9 @@ export module QuoteViewerSelectors {
   export const selectIsLoading = createSelector(
     selectState,
     (state: QuoteViewerStore.State) => state.isLoading,
+  );
+  export const selectBookmarkedQuoteList = createSelector(
+    selectState,
+    (state: QuoteViewerStore.State) => state.bookmarkedQuoteList,
   );
 }

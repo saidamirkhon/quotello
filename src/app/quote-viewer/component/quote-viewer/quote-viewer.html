@@ -27,13 +27,15 @@
 </button>
 <p>{{ slideshowProgress() }}</p>
 <button
-  [class.is-bookmarked]='quote()?.isBookmarked'
+  [style.background]='quote()?.isBookmarked ? "green" : "unset"'
   (click)='toggleBookmark.emit()'
 >Toggle bookmark
 </button>
+<label for='filter'>Show only bookmarked quotes</label>
 <input
+  id='filter'
   type='checkbox'
   [value]='filter() === Filter.BOOKMARKED'
-  [disabled]='canFilter()'
+  [disabled]='!canFilter()'
   (click)='toggleFilter.emit()'
 >

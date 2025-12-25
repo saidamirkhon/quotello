@@ -1,4 +1,7 @@
-import { Quote } from '@app-quote-viewer/model';
+import {
+  Filter,
+  Quote,
+} from '@app-quote-viewer/model';
 import {
   createAction,
   props,
@@ -8,10 +11,10 @@ export module QuoteViewerActions {
   export const init = createAction(
     '[Quote Viewer] Init',
   );
-  export const setLoading = createAction(
-    '[Quote Viewer] Set loading',
+  export const setIsLoading = createAction(
+    '[Quote Viewer] Set is loading',
     props<{
-      loading: boolean;
+      isLoading: boolean;
     }>(),
   );
   export const fetchQuoteSuccess = createAction(
@@ -48,6 +51,27 @@ export module QuoteViewerActions {
     '[Quote Viewer] Set active index',
     props<{
       activeIndex: number;
+    }>(),
+  );
+  export const bookmark = createAction(
+    '[Quote Viewer] Bookmark',
+    props<{
+      quoteId: string;
+    }>(),
+  );
+  export const unbookmark = createAction(
+    '[Quote Viewer] Unbookmark',
+    props<{
+      quoteId: string;
+    }>(),
+  );
+  export const saveBookmarkedQuoteListToLocalStorage = createAction(
+    '[Quote Viewer] Save bookmarked quote list to local storage',
+  );
+  export const setFilter = createAction(
+    '[Quote Viewer] Set filter',
+    props<{
+      filter: Filter;
     }>(),
   );
 }

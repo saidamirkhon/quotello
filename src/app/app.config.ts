@@ -15,6 +15,5 @@ export const appConfig: ApplicationConfig = {
     provideRouter(routes),
     provideHttpClient(),
     provideStore(),
-    provideEffects()
 ],
 };

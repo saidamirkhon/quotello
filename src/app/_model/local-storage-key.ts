@@ -1,3 +1,3 @@
 export enum LocalStorageKey {
-  SETTINGS = 'SETTINGS'
+  BOOKMARKED_QUOTE_LIST = 'BOOKMARKED_QUOTE_LIST'
 }

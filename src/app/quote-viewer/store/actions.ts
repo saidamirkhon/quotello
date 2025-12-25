@@ -14,10 +14,40 @@ export module QuoteViewerActions {
       loading: boolean;
     }>(),
   );
-  export const quoteFetchSuccess = createAction(
-    '[Quote Viewer] Quote fetch success',
+  export const fetchQuoteSuccess = createAction(
+    '[Quote Viewer] Fetch quote success',
     props<{
       quote: Quote;
+    }>(),
+  );
+  export const toggleFilter = createAction(
+    '[Quote Viewer] Toggle filter',
+  );
+  export const stopSlideshow = createAction(
+    '[Quote Viewer] Stop slideshow',
+  );
+  export const toggleSlideshowPlayback = createAction(
+    '[Quote Viewer] Toggle slideshow playback',
+  );
+  export const toggleBookmark = createAction(
+    '[Quote Viewer] Toggle bookmark',
+  );
+  export const showNext = createAction(
+    '[Quote Viewer] Show next',
+  );
+  export const showPrevious = createAction(
+    '[Quote Viewer] Show previous',
+  );
+  export const setBookmarkedQuoteList = createAction(
+    '[Quote Viewer] Set bookmarked quote list',
+    props<{
+      bookmarkedQuoteList: Quote[];
+    }>(),
+  );
+  export const setActiveIndex = createAction(
+    '[Quote Viewer] Set active index',
+    props<{
+      activeIndex: number;
     }>(),
   );
 }

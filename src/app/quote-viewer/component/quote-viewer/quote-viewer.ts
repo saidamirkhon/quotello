@@ -5,7 +5,10 @@ import {
   input,
   output,
 } from '@angular/core';
-import { Quote } from '@app-quote-viewer/model';
+import {
+  Filter,
+  Quote,
+} from '@app-quote-viewer/model';
 
 @Component(
   {
@@ -18,19 +21,20 @@ import { Quote } from '@app-quote-viewer/model';
 export class QuoteViewer {
   readonly quote = input.required<Quote | null>();
   readonly slideshowProgress = input.required<number | null>();
-  readonly showOnlyBookmarked = input.required<boolean | null>();
   readonly canShowNext = input.required<boolean | null>();
   readonly canShowPrevious = input.required<boolean | null>();
   readonly canPlaySlideshow = input.required<boolean | null>();
   readonly canPauseSlideshow = input.required<boolean | null>();
-  readonly canShowOnlyBookmarked = input.required<boolean | null>();
+  readonly canStopSlideshow = input.required<boolean | null>();
+  readonly canFilter = input.required<boolean | null>();
+  readonly filter = input.required<Filter | null>();
   readonly showNext = output<void>();
   readonly showPrevious = output<void>();
-  readonly pauseSlideshow = output<void>();
-  readonly playSlideshow = output<void>();
   readonly toggleBookmark = output<void>();
   readonly toggleSlideshowPlayback = output<void>();
-  readonly toggleShowOnlyBookmarked = output<void>();
+  readonly toggleFilter = output<void>();
+  readonly stopSlideshow = output<void>();
+  readonly Filter = Filter;
 
   @HostListener(
     'window:keyup',

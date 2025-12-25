@@ -1,5 +1,5 @@
 export interface Quote {
-  id: number;
+  id: string;
   text: string;
   author: string;
   isBookmarked: boolean;

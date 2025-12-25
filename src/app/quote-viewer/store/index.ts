@@ -1,5 +1,10 @@
 import { NgrxStoreKey } from '@app-model';
-import { Quote } from '@app-quote-viewer/model';
+import {
+  DisplayMode,
+  Filter,
+  Quote,
+  SlideshowPlaybackState,
+} from '@app-quote-viewer/model';
 import { QuoteViewerActions } from '@app-quote-viewer/store/actions';
 import {
   ActionReducer,
@@ -14,23 +19,22 @@ export module QuoteViewerStore {
     quoteList: Quote[];
     activeIndex: number;
     slideshowProgress: number;
-    showOnlyBookmarked: boolean;
+    slideshowPlaybackState: SlideshowPlaybackState;
+    filter: Filter;
+    displayMode: DisplayMode;
     isLoading: boolean;
+    bookmarkedQuoteList: Quote[];
   }
 
   const initialState: State = {
-    quoteList: [
-      {
-        id: 1,
-        text: 'text',
-        author: 'author',
-        isBookmarked: false,
-      },
-    ],
-    activeIndex: 0,
-    slideshowProgress: 80,
-    showOnlyBookmarked: false,
+    quoteList: [],
+    activeIndex: -1,
+    slideshowProgress: 0,
+    slideshowPlaybackState: SlideshowPlaybackState.PAUSED,
+    filter: Filter.ALL,
+    displayMode: DisplayMode.MANUAL,
     isLoading: false,
+    bookmarkedQuoteList: [],
   };
 
   export const reducer: ActionReducer<State> = createReducer<State>(
@@ -48,7 +52,19 @@ export module QuoteViewerStore {
       },
     ),
     on(
-      QuoteViewerActions.quoteFetchSuccess,
+      QuoteViewerActions.setActiveIndex,
+      (
+        state: State,
+        { activeIndex },
+      ): State => {
+        return {
+          ...state,
+          activeIndex,
+        };
+      },
+    ),
+    on(
+      QuoteViewerActions.fetchQuoteSuccess,
       (
         state: State,
         { quote },
@@ -59,6 +75,18 @@ export module QuoteViewerStore {
             ...state.quoteList,
             quote,
           ],
+        };
+      },
+    ),
+    on(
+      QuoteViewerActions.setBookmarkedQuoteList,
+      (
+        state: State,
+        { bookmarkedQuoteList },
+      ): State => {
+        return {
+          ...state,
+          bookmarkedQuoteList,
         };
       },
     ),

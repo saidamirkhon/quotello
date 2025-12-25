@@ -1,24 +1,29 @@
 <p>{{ quote()?.text }}</p>
 <p>{{ quote()?.author }}</p>
 <button
-  [disabled]='!canShowNext()'
-  (click)='showNext.emit()'
->Next quote
-</button>
-<button
   [disabled]='!canShowPrevious()'
   (click)='showPrevious.emit()'
 >Previous quote
 </button>
 <button
+  [disabled]='!canShowNext()'
+  (click)='showNext.emit()'
+>Next quote
+</button>
+<button
   [disabled]='!canPlaySlideshow()'
-  (click)='playSlideshow.emit()'
+  (click)='toggleSlideshowPlayback.emit()'
 >Play
 </button>
 <button
   [disabled]='!canPauseSlideshow()'
-  (click)='pauseSlideshow.emit()'
+  (click)='toggleSlideshowPlayback.emit()'
 >Pause
+</button>
+<button
+  [disabled]='!canStopSlideshow()'
+  (click)='stopSlideshow.emit()'
+>Stop
 </button>
 <p>{{ slideshowProgress() }}</p>
 <button
@@ -28,6 +33,7 @@
 </button>
 <input
   type='checkbox'
-  [value]='showOnlyBookmarked()'
-  (click)='toggleShowOnlyBookmarked.emit()'
+  [value]='filter() === Filter.BOOKMARKED'
+  [disabled]='canFilter()'
+  (click)='toggleFilter.emit()'
 >

@@ -1,0 +1,41 @@
+:host {
+  display: flex;
+  width: 500px;
+  max-width: 90vw;
+  min-height: 300px;
+  mat-card {
+    width: 100%;
+  }
+  mat-card-content {
+    flex: 1;
+    padding-bottom: 16px;
+  }
+  mat-card-actions {
+    gap: 8px;
+  }
+  .bookmark-box {
+    display: flex;
+    justify-content: flex-end;
+  }
+  .quote {
+    &__box {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    &__text {
+      font-size: 24px;
+      line-height: 1.5;
+    }
+    &__author {
+      font-size: 16px;
+      font-style: italic;
+      text-align: right;
+    }
+  }
+  .slideshow-box {
+    flex: 1;
+    display: flex;
+    justify-content: flex-end;
+  }
+}

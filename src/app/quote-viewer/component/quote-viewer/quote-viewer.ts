@@ -5,6 +5,15 @@ import {
   input,
   output,
 } from '@angular/core';
+import { MatButtonModule } from '@angular/material/button';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
+import { MatCardModule } from '@angular/material/card';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatDividerModule } from '@angular/material/divider';
+import { MatIconModule } from '@angular/material/icon';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { Icon } from '@app-model';
 import {
   Filter,
   Quote,
@@ -15,6 +24,16 @@ import {
     selector: 'app-quote-viewer',
     templateUrl: './quote-viewer.html',
     styleUrl: './quote-viewer.scss',
+    imports: [
+      MatCardModule,
+      MatButtonModule,
+      MatCheckboxModule,
+      MatIconModule,
+      MatTooltipModule,
+      MatProgressBarModule,
+      MatDividerModule,
+      MatButtonToggleModule,
+    ],
     changeDetection: ChangeDetectionStrategy.OnPush,
   },
 )
@@ -27,7 +46,9 @@ export class QuoteViewer {
   readonly canPauseSlideshow = input.required<boolean | null>();
   readonly canStopSlideshow = input.required<boolean | null>();
   readonly canFilter = input.required<boolean | null>();
+  readonly canToggleBookmark = input.required<boolean | null>();
   readonly filter = input.required<Filter | null>();
+  readonly isLoading = input.required<boolean | null>();
   readonly showNext = output<void>();
   readonly showPrevious = output<void>();
   readonly toggleBookmark = output<void>();
@@ -35,6 +56,7 @@ export class QuoteViewer {
   readonly toggleFilter = output<void>();
   readonly stopSlideshow = output<void>();
   readonly Filter = Filter;
+  readonly Icon = Icon;
 
   @HostListener(
     'window:keyup',

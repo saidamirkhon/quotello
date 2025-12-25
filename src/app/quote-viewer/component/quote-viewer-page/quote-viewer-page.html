@@ -8,6 +8,8 @@
   [canPauseSlideshow]='quoteViewerService.canPauseSlideshow$ | async'
   [canStopSlideshow]='quoteViewerService.canStopSlideshow$ | async'
   [canFilter]='quoteViewerService.canFilter$ | async'
+  [canToggleBookmark]='quoteViewerService.canToggleBookmark$ | async'
+  [isLoading]='quoteViewerService.isLoading$ | async'
   (showNext)='quoteViewerService.showNext()'
   (showPrevious)='quoteViewerService.showPrevious()'
   (toggleSlideshowPlayback)='quoteViewerService.toggleSlideshowPlayback()'

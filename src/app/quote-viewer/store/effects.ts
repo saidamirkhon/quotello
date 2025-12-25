@@ -310,4 +310,39 @@ export class QuoteViewerEffects {
         ),
       ),
   );
+
+  toggleSlideshowPlayback$ = createEffect(
+    () => this.actions
+      .pipe(
+        ofType(QuoteViewerActions.toggleSlideshowPlayback),
+        withLatestFrom(
+          this.store.select(QuoteViewerSelectors.selectCanPlaySlideshow),
+          this.store.select(QuoteViewerSelectors.selectCanPauseSlideshow),
+        ),
+        switchMap(
+          (
+            [
+              _,
+              canPlaySlideshow,
+              canPauseSlideshow,
+            ]: [
+              Action,
+              boolean,
+              boolean,
+            ],
+          ) => {
+            if (!canPlaySlideshow && !canPauseSlideshow) {
+              return EMPTY;
+            }
+            if (canPlaySlideshow) {
+
+            }
+            return EMPTY;
+          },
+        ),
+      ),
+    {
+      dispatch: false,
+    },
+  );
 }

@@ -22,7 +22,9 @@ export class QuoteViewerService {
   readonly canPauseSlideshow$: Observable<boolean> = this.store.select(QuoteViewerSelectors.selectCanPauseSlideshow);
   readonly canStopSlideshow$: Observable<boolean> = this.store.select(QuoteViewerSelectors.selectCanStopSlideshow);
   readonly canFilter$: Observable<boolean> = this.store.select(QuoteViewerSelectors.selectCanFilter);
+  readonly canToggleBookmark$: Observable<boolean> = this.store.select(QuoteViewerSelectors.selectCanToggleBookmark);
   readonly filter$: Observable<Filter> = this.store.select(QuoteViewerSelectors.selectFilter);
+  readonly isLoading$: Observable<boolean> = this.store.select(QuoteViewerSelectors.selectIsLoading);
 
   showNext(): void {
     this.store.dispatch(QuoteViewerActions.showNext());

@@ -74,8 +74,16 @@ export module QuoteViewerSelectors {
   );
   export const selectCanPlaySlideshow = createSelector(
     selectState,
-    (state: QuoteViewerStore.State) => {
-      return state.displayMode !== DisplayMode.SLIDESHOW || state.slideshowPlaybackState === SlideshowPlaybackState.PAUSED;
+    selectFilteredQuoteList,
+    (
+      state: QuoteViewerStore.State,
+      quoteList: Quote[],
+    ) => {
+      return quoteList.length > 0
+        && (
+          state.displayMode !== DisplayMode.SLIDESHOW
+          || state.slideshowPlaybackState === SlideshowPlaybackState.PAUSED
+        );
     },
   );
   export const selectCanPauseSlideshow = createSelector(
@@ -111,5 +119,9 @@ export module QuoteViewerSelectors {
   export const selectBookmarkedQuoteList = createSelector(
     selectState,
     (state: QuoteViewerStore.State) => state.bookmarkedQuoteList,
+  );
+  export const selectCanToggleBookmark = createSelector(
+    selectQuote,
+    (quote: Quote | null) => !!quote,
   );
 }

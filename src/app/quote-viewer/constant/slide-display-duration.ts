@@ -1,0 +1,1 @@
+export const SLIDE_DISPLAY_DURATION_IN_MS = 5000;

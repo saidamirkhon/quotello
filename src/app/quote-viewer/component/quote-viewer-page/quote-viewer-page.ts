@@ -16,6 +16,7 @@ import { QuoteViewerService } from '@app-quote-viewer/service/quote-viewer.servi
       QuoteViewer,
       AsyncPipe,
     ],
+    styleUrl: './quote-viewer-page.scss',
     changeDetection: ChangeDetectionStrategy.OnPush,
   },
 )

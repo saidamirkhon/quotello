@@ -8,18 +8,15 @@ import {
   Quote,
 } from '@app-quote-viewer/model';
 import { QuoteViewerApiService } from '@app-quote-viewer/service/quote-viewer-api.service';
+import { QuoteViewerService } from '@app-quote-viewer/service/quote-viewer.service';
 import { QuoteViewerActions } from '@app-quote-viewer/store/actions';
-import { QuoteViewerSelectors } from '@app-quote-viewer/store/selectors';
-import { QuoteMapper } from '@app-quote-viewer/util/quote-mapper';
+import { QuoteMapper } from '@app-quote-viewer/util';
 import {
   Actions,
   createEffect,
   ofType,
 } from '@ngrx/effects';
-import {
-  Action,
-  Store,
-} from '@ngrx/store';
+import { Action } from '@ngrx/store';
 import {
   catchError,
   concat,
@@ -40,8 +37,8 @@ import {
 @Injectable()
 export class QuoteViewerEffects {
   private readonly actions: Actions = inject(Actions);
-  private readonly store: Store = inject(Store);
   private readonly quoteViewerApiService: QuoteViewerApiService = inject(QuoteViewerApiService);
+  private readonly quoteViewerService: QuoteViewerService = inject(QuoteViewerService);
 
   init$ = createEffect(
     () => this.actions
@@ -95,9 +92,9 @@ export class QuoteViewerEffects {
       .pipe(
         ofType(QuoteViewerActions.showNext),
         withLatestFrom(
-          this.store.select(QuoteViewerSelectors.selectActiveIndex),
-          this.store.select(QuoteViewerSelectors.selectFilteredQuoteList),
-          this.store.select(QuoteViewerSelectors.selectCanShowNext),
+          this.quoteViewerService.activeIndex$,
+          this.quoteViewerService.filteredQuoteList$,
+          this.quoteViewerService.canShowNext$,
         ),
         switchMap(
           (
@@ -149,8 +146,8 @@ export class QuoteViewerEffects {
       .pipe(
         ofType(QuoteViewerActions.showPrevious),
         withLatestFrom(
-          this.store.select(QuoteViewerSelectors.selectActiveIndex),
-          this.store.select(QuoteViewerSelectors.selectCanShowPrevious),
+          this.quoteViewerService.activeIndex$,
+          this.quoteViewerService.canShowPrevious$,
         ),
         switchMap(
           (
@@ -178,9 +175,9 @@ export class QuoteViewerEffects {
       .pipe(
         ofType(QuoteViewerActions.toggleBookmark),
         withLatestFrom(
-          this.store.select(QuoteViewerSelectors.selectQuote),
-          this.store.select(QuoteViewerSelectors.selectFilteredQuoteList),
-          this.store.select(QuoteViewerSelectors.selectFilter),
+          this.quoteViewerService.quote$,
+          this.quoteViewerService.filteredQuoteList$,
+          this.quoteViewerService.filter$,
         ),
         switchMap(
           (
@@ -220,7 +217,7 @@ export class QuoteViewerEffects {
       .pipe(
         ofType(QuoteViewerActions.saveBookmarkedQuoteListToLocalStorage),
         withLatestFrom(
-          this.store.select(QuoteViewerSelectors.selectBookmarkedQuoteList),
+          this.quoteViewerService.bookmarkedQuoteList$,
         ),
         switchMap(
           (
@@ -248,9 +245,9 @@ export class QuoteViewerEffects {
       .pipe(
         ofType(QuoteViewerActions.toggleFilter),
         withLatestFrom(
-          this.store.select(QuoteViewerSelectors.selectFilter),
-          this.store.select(QuoteViewerSelectors.selectQuoteList),
-          this.store.select(QuoteViewerSelectors.selectBookmarkedQuoteList),
+          this.quoteViewerService.filter$,
+          this.quoteViewerService.quoteList$,
+          this.quoteViewerService.bookmarkedQuoteList$,
         ),
         switchMap(
           (
@@ -323,8 +320,8 @@ export class QuoteViewerEffects {
       .pipe(
         ofType(QuoteViewerActions.toggleSlideshowPlayback),
         withLatestFrom(
-          this.store.select(QuoteViewerSelectors.selectCanPlaySlideshow),
-          this.store.select(QuoteViewerSelectors.selectCanPauseSlideshow),
+          this.quoteViewerService.canPlaySlideshow$,
+          this.quoteViewerService.canPauseSlideshow$,
         ),
         switchMap(
           (

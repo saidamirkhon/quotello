@@ -15,6 +15,7 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Icon } from '@app-model';
 import {
+  DisplayMode,
   Filter,
   Quote,
 } from '@app-quote-viewer/model';
@@ -49,6 +50,7 @@ export class QuoteViewer {
   readonly canToggleBookmark = input.required<boolean | null>();
   readonly filter = input.required<Filter | null>();
   readonly isLoading = input.required<boolean | null>();
+  readonly displayMode = input.required<DisplayMode | null>();
   readonly showNext = output<void>();
   readonly showPrevious = output<void>();
   readonly toggleBookmark = output<void>();

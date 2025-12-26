@@ -16,10 +16,27 @@
         </mat-icon>
       </button>
     </div>
-    <div class='quote__box'>
-      <div class='quote__text'>&#8220;{{ quote()?.text }}&#8221;</div>
-      <div class='quote__author'>{{ quote()?.author }}</div>
-    </div>
+    @if (quote()) {
+      <div class='quote__box'>
+        <div class='quote__text'>&#8220;{{ quote()?.text }}&#8221;</div>
+        <div class='quote__author'>{{ quote()?.author }}</div>
+      </div>
+    } @else {
+      <div class='quote-placeholder-box'>
+        @switch (filter()) {
+          @case (Filter.ALL) {
+            @if (isLoading()) {
+              <div class='quote-placeholder'>Quote is on the way...</div>
+            }
+          }
+          @case (Filter.BOOKMARKED) {
+            <div class='quote-placeholder'>
+              You have no any bookmarked quote.
+            </div>
+          }
+        }
+      </div>
+    }
   </mat-card-content>
   <mat-divider></mat-divider>
   <mat-card-actions>

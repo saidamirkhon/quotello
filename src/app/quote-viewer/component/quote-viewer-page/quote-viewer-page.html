@@ -10,6 +10,7 @@
   [canFilter]='quoteViewerService.canFilter$ | async'
   [canToggleBookmark]='quoteViewerService.canToggleBookmark$ | async'
   [isLoading]='quoteViewerService.isLoading$ | async'
+  [displayMode]='quoteViewerService.displayMode$ | async'
   (showNext)='quoteViewerService.showNext()'
   (showPrevious)='quoteViewerService.showPrevious()'
   (toggleSlideshowPlayback)='quoteViewerService.toggleSlideshowPlayback()'

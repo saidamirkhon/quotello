@@ -3,6 +3,7 @@ import {
   Injectable,
 } from '@angular/core';
 import {
+  DisplayMode,
   Filter,
   Quote,
 } from '@app-quote-viewer/model';
@@ -25,6 +26,11 @@ export class QuoteViewerService {
   readonly canToggleBookmark$: Observable<boolean> = this.store.select(QuoteViewerSelectors.selectCanToggleBookmark);
   readonly filter$: Observable<Filter> = this.store.select(QuoteViewerSelectors.selectFilter);
   readonly isLoading$: Observable<boolean> = this.store.select(QuoteViewerSelectors.selectIsLoading);
+  readonly activeIndex$: Observable<number> = this.store.select(QuoteViewerSelectors.selectActiveIndex);
+  readonly filteredQuoteList$: Observable<Quote[]> = this.store.select(QuoteViewerSelectors.selectFilteredQuoteList);
+  readonly bookmarkedQuoteList$: Observable<Quote[]> = this.store.select(QuoteViewerSelectors.selectBookmarkedQuoteList);
+  readonly quoteList$: Observable<Quote[]> = this.store.select(QuoteViewerSelectors.selectQuoteList);
+  readonly displayMode$: Observable<DisplayMode> = this.store.select(QuoteViewerSelectors.selectDisplayMode);
 
   showNext(): void {
     this.store.dispatch(QuoteViewerActions.showNext());

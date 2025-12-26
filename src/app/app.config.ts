@@ -4,10 +4,9 @@ import {
   provideBrowserGlobalErrorListeners,
 } from '@angular/core';
 import { provideRouter } from '@angular/router';
+import { provideStore } from '@ngrx/store';
 
 import { routes } from './app.routes';
-import { provideStore } from '@ngrx/store';
-import { provideEffects } from '@ngrx/effects';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -15,5 +14,5 @@ export const appConfig: ApplicationConfig = {
     provideRouter(routes),
     provideHttpClient(),
     provideStore(),
-],
+  ],
 };

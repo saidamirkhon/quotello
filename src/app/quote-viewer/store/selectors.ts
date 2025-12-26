@@ -16,6 +16,10 @@ export module QuoteViewerSelectors {
     selectState,
     (state: QuoteViewerStore.State) => state.slideshowProgress,
   );
+  export const selectSlideshowPlaybackState = createSelector(
+    selectState,
+    (state: QuoteViewerStore.State) => state.slideshowPlaybackState,
+  );
   export const selectFilter = createSelector(
     selectState,
     (state: QuoteViewerStore.State) => state.filter,
@@ -24,20 +28,38 @@ export module QuoteViewerSelectors {
     selectState,
     (state: QuoteViewerStore.State) => state.quoteList,
   );
-  export const selectFilteredQuoteList = createSelector(
+  export const selectBookmarkedQuoteList = createSelector(
     selectState,
-    (state: QuoteViewerStore.State) => {
-      switch (state.filter) {
-        case Filter.ALL:
-          return state.quoteList;
-        case Filter.BOOKMARKED:
-          return state.bookmarkedQuoteList;
-      }
-    },
+    (state: QuoteViewerStore.State) => state.bookmarkedQuoteList,
   );
   export const selectActiveIndex = createSelector(
     selectState,
     (state: QuoteViewerStore.State) => state.activeIndex,
+  );
+  export const selectDisplayMode = createSelector(
+    selectState,
+    (state: QuoteViewerStore.State) => state.displayMode,
+  );
+  export const selectIsLoading = createSelector(
+    selectState,
+    (state: QuoteViewerStore.State) => state.isLoading,
+  );
+  export const selectFilteredQuoteList = createSelector(
+    selectFilter,
+    selectQuoteList,
+    selectBookmarkedQuoteList,
+    (
+      filter: Filter,
+      quoteList: Quote[],
+      bookmarkedQuoteList: Quote[],
+    ) => {
+      switch (filter) {
+        case Filter.ALL:
+          return quoteList;
+        case Filter.BOOKMARKED:
+          return bookmarkedQuoteList;
+      }
+    },
   );
   export const selectQuote = createSelector(
     selectFilteredQuoteList,
@@ -52,73 +74,73 @@ export module QuoteViewerSelectors {
     },
   );
   export const selectCanShowNext = createSelector(
-    selectState,
-    selectFilteredQuoteList,
+    selectFilter,
+    selectBookmarkedQuoteList,
+    selectDisplayMode,
+    selectIsLoading,
+    selectActiveIndex,
     (
-      state: QuoteViewerStore.State,
-      quoteList: Quote[],
+      filter: Filter,
+      bookmarkedQuoteList: Quote[],
+      displayMode: DisplayMode,
+      isLoading: boolean,
+      activeIndex: number,
     ) => {
-      switch (state.filter) {
+      switch (filter) {
         case Filter.ALL:
-          return state.displayMode === DisplayMode.MANUAL && !state.isLoading;
+          return displayMode === DisplayMode.MANUAL && !isLoading;
         case Filter.BOOKMARKED:
-          return state.activeIndex < quoteList.length - 1;
+          return activeIndex < bookmarkedQuoteList.length - 1;
       }
     },
   );
   export const selectCanShowPrevious = createSelector(
-    selectState,
-    (state: QuoteViewerStore.State) => {
-      return state.displayMode === DisplayMode.MANUAL && state.activeIndex > 0;
+    selectDisplayMode,
+    selectActiveIndex,
+    (
+      displayMode: DisplayMode,
+      activeIndex: number,
+    ) => {
+      return displayMode === DisplayMode.MANUAL && activeIndex > 0;
     },
   );
   export const selectCanPlaySlideshow = createSelector(
-    selectState,
+    selectDisplayMode,
     selectFilteredQuoteList,
+    selectSlideshowPlaybackState,
     (
-      state: QuoteViewerStore.State,
-      quoteList: Quote[],
+      displayMode: DisplayMode,
+      filteredQuoteList: Quote[],
+      slideshowPlaybackState: SlideshowPlaybackState,
     ) => {
-      return quoteList.length > 0
+      return filteredQuoteList.length > 0
         && (
-          state.displayMode !== DisplayMode.SLIDESHOW
-          || state.slideshowPlaybackState === SlideshowPlaybackState.PAUSED
+          displayMode !== DisplayMode.SLIDESHOW
+          || slideshowPlaybackState === SlideshowPlaybackState.PAUSED
         );
     },
   );
   export const selectCanPauseSlideshow = createSelector(
-    selectState,
-    (state: QuoteViewerStore.State) => {
-      return state.displayMode === DisplayMode.SLIDESHOW && state.slideshowPlaybackState === SlideshowPlaybackState.PLAYING;
+    selectDisplayMode,
+    selectSlideshowPlaybackState,
+    (
+      displayMode: DisplayMode,
+      slideshowPlaybackState: SlideshowPlaybackState,
+    ) => {
+      return displayMode === DisplayMode.SLIDESHOW && slideshowPlaybackState === SlideshowPlaybackState.PLAYING;
     },
   );
   export const selectCanStopSlideshow = createSelector(
-    selectState,
-    (state: QuoteViewerStore.State) => {
-      return state.displayMode === DisplayMode.SLIDESHOW;
+    selectDisplayMode,
+    (displayMode: DisplayMode) => {
+      return displayMode === DisplayMode.SLIDESHOW;
     },
   );
   export const selectCanFilter = createSelector(
-    selectState,
-    (state: QuoteViewerStore.State) => {
-      return state.displayMode === DisplayMode.MANUAL;
+    selectDisplayMode,
+    (displayMode: DisplayMode) => {
+      return displayMode === DisplayMode.MANUAL;
     },
-  );
-  export const selectDisplayMode = createSelector(
-    selectState,
-    (state: QuoteViewerStore.State) => state.displayMode,
-  );
-  export const selectSlideshowPlaybackState = createSelector(
-    selectState,
-    (state: QuoteViewerStore.State) => state.slideshowPlaybackState,
-  );
-  export const selectIsLoading = createSelector(
-    selectState,
-    (state: QuoteViewerStore.State) => state.isLoading,
-  );
-  export const selectBookmarkedQuoteList = createSelector(
-    selectState,
-    (state: QuoteViewerStore.State) => state.bookmarkedQuoteList,
   );
   export const selectCanToggleBookmark = createSelector(
     selectQuote,

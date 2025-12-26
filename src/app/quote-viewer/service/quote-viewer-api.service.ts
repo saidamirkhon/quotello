@@ -4,21 +4,25 @@ import {
   Injectable,
 } from '@angular/core';
 import {
-  Quote,
-  QuoteDto,
+  QuoteFromDummyJsonDto,
+  QuoteFromQuotableDto,
+  QuoteFromQuoteSlateDto,
 } from '@app-quote-viewer/model';
-import { toQuote } from '@app-quote-viewer/util';
-import {
-  map,
-  Observable,
-} from 'rxjs';
+import { Observable } from 'rxjs';
 
 @Injectable()
 export class QuoteViewerApiService {
   private readonly http: HttpClient = inject(HttpClient);
 
-  fetchQuote(): Observable<Quote> {
-    return this.http.get<QuoteDto>('https://api.quotable.io/random')
-      .pipe(map(toQuote));
+  fetchQuoteFromQuotable(): Observable<QuoteFromQuotableDto> {
+    return this.http.get<QuoteFromQuotableDto>('https://api.quotable.io/random');
+  }
+
+  fetchQuoteFromDummyJson(): Observable<QuoteFromDummyJsonDto> {
+    return this.http.get<QuoteFromDummyJsonDto>('https://dummyjson.com/quotes/random');
+  }
+
+  fetchQuoteFromQuoteSlate(): Observable<QuoteFromQuoteSlateDto> {
+    return this.http.get<QuoteFromDummyJsonDto>('https://quoteslate.vercel.app/api/quotes/random');
   }
 }

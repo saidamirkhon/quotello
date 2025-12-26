@@ -10,6 +10,7 @@ import {
 import { QuoteViewerApiService } from '@app-quote-viewer/service/quote-viewer-api.service';
 import { QuoteViewerActions } from '@app-quote-viewer/store/actions';
 import { QuoteViewerSelectors } from '@app-quote-viewer/store/selectors';
+import { QuoteMapper } from '@app-quote-viewer/util/quote-mapper';
 import {
   Actions,
   createEffect,
@@ -24,9 +25,15 @@ import {
   concat,
   EMPTY,
   from,
+  map,
+  merge,
   Observable,
   of,
+  retry,
   switchMap,
+  take,
+  throwIfEmpty,
+  timer,
   withLatestFrom,
 } from 'rxjs';
 
@@ -55,7 +62,7 @@ export class QuoteViewerEffects {
             }
             actionList$.push(
               of(QuoteViewerActions.setIsLoading({ isLoading: true })),
-              this.quoteViewerApiService.fetchQuote()
+              this.fetchQuote()
                 .pipe(
                   switchMap(
                     (quote: Quote) => {
@@ -112,7 +119,7 @@ export class QuoteViewerEffects {
             }
             return concat(
               of(QuoteViewerActions.setIsLoading({ isLoading: true })),
-              this.quoteViewerApiService.fetchQuote()
+              this.fetchQuote()
                 .pipe(
                   switchMap(
                     (quote: Quote) => {
@@ -345,4 +352,48 @@ export class QuoteViewerEffects {
       dispatch: false,
     },
   );
+
+  private fetchQuote(): Observable<Quote> {
+    return merge(
+      this.quoteViewerApiService
+        .fetchQuoteFromDummyJson()
+        .pipe(
+          map(QuoteMapper.fromDummyJson),
+          catchError(() => EMPTY),
+        ),
+      this.quoteViewerApiService
+        .fetchQuoteFromQuotable()
+        .pipe(
+          map(QuoteMapper.fromQuotable),
+          catchError(() => EMPTY),
+        ),
+      this.quoteViewerApiService
+        .fetchQuoteFromQuoteSlate()
+        .pipe(
+          map(QuoteMapper.fromQuoteSlate),
+          catchError(() => EMPTY),
+        ),
+    )
+      .pipe(
+        take(1),
+        throwIfEmpty(() => new Error()),
+        retry(
+          {
+            count: 10,
+            delay: (
+              error,
+              retryCount,
+            ) => {
+              return timer(
+                Math
+                  .pow(
+                    2,
+                    retryCount - 1,
+                  ) * 1000,
+              );
+            },
+          },
+        ),
+      );
+  }
 }

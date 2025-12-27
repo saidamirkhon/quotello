@@ -59,6 +59,7 @@ export class QuoteViewer {
   readonly stopSlideshow = output<void>();
   readonly Filter = Filter;
   readonly Icon = Icon;
+  readonly DisplayMode = DisplayMode;
 
   @HostListener(
     'window:keyup',

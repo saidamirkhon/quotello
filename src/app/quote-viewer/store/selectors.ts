@@ -44,6 +44,10 @@ export module QuoteViewerSelectors {
     selectState,
     (state: QuoteViewerStore.State) => state.isLoading,
   );
+  export const selectSlideStep = createSelector(
+    selectState,
+    (state: QuoteViewerStore.State) => state.slideStep,
+  );
   export const selectFilteredQuoteList = createSelector(
     selectFilter,
     selectQuoteList,
@@ -90,7 +94,7 @@ export module QuoteViewerSelectors {
         case Filter.ALL:
           return displayMode === DisplayMode.MANUAL && !isLoading;
         case Filter.BOOKMARKED:
-          return activeIndex < bookmarkedQuoteList.length - 1;
+          return displayMode === DisplayMode.MANUAL && activeIndex < bookmarkedQuoteList.length - 1;
       }
     },
   );
@@ -144,6 +148,12 @@ export module QuoteViewerSelectors {
   );
   export const selectCanToggleBookmark = createSelector(
     selectQuote,
-    (quote: Quote | null) => !!quote,
+    selectDisplayMode,
+    selectFilter,
+    (
+      quote: Quote | null,
+      displayMode: DisplayMode,
+      filter: Filter,
+    ) => !!quote && (displayMode === DisplayMode.MANUAL || filter === Filter.ALL),
   );
 }

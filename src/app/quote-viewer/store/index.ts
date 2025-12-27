@@ -24,6 +24,7 @@ export module QuoteViewerStore {
     displayMode: DisplayMode;
     isLoading: boolean;
     bookmarkedQuoteList: Quote[];
+    slideStep: number;
   }
 
   const initialState: State = {
@@ -35,6 +36,7 @@ export module QuoteViewerStore {
     displayMode: DisplayMode.MANUAL,
     isLoading: false,
     bookmarkedQuoteList: [],
+    slideStep: 0,
   };
 
   export const reducer: ActionReducer<State> = createReducer<State>(
@@ -158,6 +160,69 @@ export module QuoteViewerStore {
         return {
           ...state,
           filter,
+        };
+      },
+    ),
+    on(
+      QuoteViewerActions.startSlideshow,
+      (state: State): State => {
+        return {
+          ...state,
+          slideshowPlaybackState: SlideshowPlaybackState.PLAYING,
+          displayMode: DisplayMode.SLIDESHOW,
+        };
+      },
+    ),
+    on(
+      QuoteViewerActions.pauseSlideshow,
+      (state: State): State => {
+        return {
+          ...state,
+          slideshowPlaybackState: SlideshowPlaybackState.PAUSED,
+        };
+      },
+    ),
+    on(
+      QuoteViewerActions.resumeSlideshow,
+      (state: State): State => {
+        return {
+          ...state,
+          slideshowPlaybackState: SlideshowPlaybackState.PLAYING,
+        };
+      },
+    ),
+    on(
+      QuoteViewerActions.stopSlideshow,
+      (state: State): State => {
+        return {
+          ...state,
+          slideshowPlaybackState: SlideshowPlaybackState.PAUSED,
+          displayMode: DisplayMode.MANUAL,
+          slideshowProgress: 0,
+        };
+      },
+    ),
+    on(
+      QuoteViewerActions.setSlideshowProgress,
+      (
+        state: State,
+        { slideshowProgress },
+      ): State => {
+        return {
+          ...state,
+          slideshowProgress,
+        };
+      },
+    ),
+    on(
+      QuoteViewerActions.setSlideStep,
+      (
+        state: State,
+        { slideStep },
+      ): State => {
+        return {
+          ...state,
+          slideStep,
         };
       },
     ),

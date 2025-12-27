@@ -74,4 +74,28 @@ export module QuoteViewerActions {
       filter: Filter;
     }>(),
   );
+  export const startSlideshow = createAction(
+    '[Quote Viewer] Start slideshow',
+  );
+  export const pauseSlideshow = createAction(
+    '[Quote Viewer] Pause slideshow',
+  );
+  export const resumeSlideshow = createAction(
+    '[Quote Viewer] Resume slideshow',
+  );
+  export const setSlideshowProgress = createAction(
+    '[Quote Viewer] Set slideshow progress',
+    props<{
+      slideshowProgress: number;
+    }>(),
+  );
+  export const playSlide = createAction(
+    '[Quote Viewer] Play slide',
+  );
+  export const setSlideStep = createAction(
+    '[Quote Viewer] Set slide step',
+    props<{
+      slideStep: number;
+    }>(),
+  );
 }

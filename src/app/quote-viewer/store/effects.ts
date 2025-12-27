@@ -3,9 +3,12 @@ import {
   Injectable,
 } from '@angular/core';
 import { LocalStorageKey } from '@app-model';
+import { SLIDE_DISPLAY_DURATION_IN_MS } from '@app-quote-viewer/constant';
 import {
+  DisplayMode,
   Filter,
   Quote,
+  SlideshowPlaybackState,
 } from '@app-quote-viewer/model';
 import { QuoteViewerApiService } from '@app-quote-viewer/service/quote-viewer-api.service';
 import { QuoteViewerService } from '@app-quote-viewer/service/quote-viewer.service';
@@ -19,16 +22,20 @@ import {
 import { Action } from '@ngrx/store';
 import {
   catchError,
+  combineLatest,
   concat,
   EMPTY,
+  filter,
   from,
   map,
   merge,
   Observable,
   of,
   retry,
+  scan,
   switchMap,
   take,
+  takeUntil,
   throwIfEmpty,
   timer,
   withLatestFrom,
@@ -94,7 +101,7 @@ export class QuoteViewerEffects {
         withLatestFrom(
           this.quoteViewerService.activeIndex$,
           this.quoteViewerService.filteredQuoteList$,
-          this.quoteViewerService.canShowNext$,
+          this.quoteViewerService.slideshowPlaybackState$,
         ),
         switchMap(
           (
@@ -102,17 +109,23 @@ export class QuoteViewerEffects {
               _,
               activeIndex,
               filteredQuoteList,
-              canShowNext,
+              slideshowPlaybackState,
             ]: [
               Action,
               number,
               Quote[],
-              boolean,
+              SlideshowPlaybackState,
             ],
           ) => {
             const newActiveIndex = activeIndex + 1;
-            if (canShowNext && newActiveIndex <= filteredQuoteList.length - 1) {
-              return of(QuoteViewerActions.setActiveIndex({ activeIndex: newActiveIndex }));
+            if (newActiveIndex <= filteredQuoteList.length - 1) {
+              const actionList: Action[] = [
+                QuoteViewerActions.setActiveIndex({ activeIndex: newActiveIndex }),
+              ];
+              if (slideshowPlaybackState === SlideshowPlaybackState.PLAYING) {
+                actionList.push(QuoteViewerActions.playSlide());
+              }
+              return from(actionList);
             }
             return concat(
               of(QuoteViewerActions.setIsLoading({ isLoading: true })),
@@ -120,12 +133,19 @@ export class QuoteViewerEffects {
                 .pipe(
                   switchMap(
                     (quote: Quote) => {
+                      const actionList: Action[] = [
+                        QuoteViewerActions.fetchQuoteSuccess({ quote }),
+                        QuoteViewerActions.setIsLoading({ isLoading: false }),
+                        QuoteViewerActions.setActiveIndex({ activeIndex: newActiveIndex }),
+                      ];
+                      if (slideshowPlaybackState === SlideshowPlaybackState.PLAYING) {
+                        actionList
+                          .push(
+                            QuoteViewerActions.playSlide(),
+                          );
+                      }
                       return from(
-                        [
-                          QuoteViewerActions.fetchQuoteSuccess({ quote }),
-                          QuoteViewerActions.setIsLoading({ isLoading: false }),
-                          QuoteViewerActions.setActiveIndex({ activeIndex: newActiveIndex }),
-                        ],
+                        actionList,
                       );
                     },
                   ),
@@ -178,6 +198,7 @@ export class QuoteViewerEffects {
           this.quoteViewerService.quote$,
           this.quoteViewerService.filteredQuoteList$,
           this.quoteViewerService.filter$,
+          this.quoteViewerService.activeIndex$,
         ),
         switchMap(
           (
@@ -186,11 +207,13 @@ export class QuoteViewerEffects {
               quote,
               filteredQuoteList,
               filter,
+              activeIndex,
             ]: [
               Action,
                 Quote | null,
               Quote[],
               Filter,
+              number,
             ],
           ) => {
             if (!quote) {
@@ -199,8 +222,20 @@ export class QuoteViewerEffects {
             const actionList$: Observable<Action>[] = [];
             if (quote.isBookmarked) {
               actionList$.push(of(QuoteViewerActions.unbookmark({ quoteId: quote.id })));
-              if (filter === Filter.BOOKMARKED && filteredQuoteList.length === 1) {
-                actionList$.push(of(QuoteViewerActions.setActiveIndex({ activeIndex: -1 })));
+              if (filter === Filter.BOOKMARKED) {
+                actionList$
+                  .push(
+                    of(
+                      QuoteViewerActions
+                        .setActiveIndex(
+                          {
+                            activeIndex: filteredQuoteList.length === 1
+                              ? -1
+                              : activeIndex - 1,
+                          },
+                        ),
+                    ),
+                  );
               }
             } else {
               actionList$.push(of(QuoteViewerActions.bookmark({ quoteId: quote.id })));
@@ -322,6 +357,8 @@ export class QuoteViewerEffects {
         withLatestFrom(
           this.quoteViewerService.canPlaySlideshow$,
           this.quoteViewerService.canPauseSlideshow$,
+          this.quoteViewerService.slideshowPlaybackState$,
+          this.quoteViewerService.displayMode$,
         ),
         switchMap(
           (
@@ -329,25 +366,85 @@ export class QuoteViewerEffects {
               _,
               canPlaySlideshow,
               canPauseSlideshow,
+              slideshowPlaybackState,
+              displayMode,
             ]: [
               Action,
               boolean,
               boolean,
+              SlideshowPlaybackState,
+              DisplayMode,
             ],
           ) => {
             if (!canPlaySlideshow && !canPauseSlideshow) {
               return EMPTY;
             }
-            if (canPlaySlideshow) {
-
+            switch (slideshowPlaybackState) {
+              case SlideshowPlaybackState.PAUSED:
+                switch (displayMode) {
+                  case DisplayMode.MANUAL:
+                    return of(QuoteViewerActions.startSlideshow());
+                  case DisplayMode.SLIDESHOW:
+                    return of(QuoteViewerActions.resumeSlideshow());
+                  default:
+                    return EMPTY;
+                }
+              case SlideshowPlaybackState.PLAYING:
+                return of(QuoteViewerActions.pauseSlideshow());
             }
-            return EMPTY;
           },
         ),
       ),
-    {
-      dispatch: false,
-    },
+  );
+
+  startSlideshow$ = createEffect(
+    () => this.actions
+      .pipe(
+        ofType(QuoteViewerActions.startSlideshow),
+        switchMap(
+          () => {
+            return of(QuoteViewerActions.playSlide());
+          },
+        ),
+      ),
+  );
+
+  playSlide$ = createEffect(
+    () => this.actions
+      .pipe(
+        ofType(QuoteViewerActions.playSlide),
+        switchMap(
+          () => {
+            return concat(
+              of(QuoteViewerActions.setSlideshowProgress({ slideshowProgress: 0 })),
+              this.getPlaySlideFlow$(),
+            );
+          },
+        ),
+      ),
+  );
+
+  resumeSlideshow$ = createEffect(
+    () => this.actions
+      .pipe(
+        ofType(QuoteViewerActions.resumeSlideshow),
+        withLatestFrom(
+          this.quoteViewerService.slideStep$,
+        ),
+        switchMap(
+          (
+            [
+              _,
+              slideStep,
+            ]: [
+              Action,
+              number,
+            ],
+          ) => {
+            return this.getPlaySlideFlow$(slideStep);
+          },
+        ),
+      ),
   );
 
   private fetchQuote(): Observable<Quote> {
@@ -390,6 +487,94 @@ export class QuoteViewerEffects {
               );
             },
           },
+        ),
+      );
+  }
+
+  private getPlaySlideFlow$(startFromStep = 0): Observable<Action> {
+    const rateInMs = 200;
+    const numSteps = Math.floor(SLIDE_DISPLAY_DURATION_IN_MS / rateInMs);
+    return timer(
+      0,
+      rateInMs,
+    )
+      .pipe(
+        take(numSteps - startFromStep),
+        scan(
+          (currentStep: number) => currentStep + 1,
+          startFromStep,
+        ),
+        withLatestFrom(
+          this.quoteViewerService.filter$,
+          this.quoteViewerService.activeIndex$,
+          this.quoteViewerService.bookmarkedQuoteList$,
+        ),
+        switchMap(
+          (
+            [
+              currentStep,
+              filter,
+              activeIndex,
+              bookmarkedQuoteList,
+            ]: [
+              number,
+              Filter,
+              number,
+              Quote[],
+            ],
+          ) => {
+            const actionList$: Observable<Action>[] = [];
+            const isLastStep = currentStep === numSteps;
+            if (isLastStep) {
+              actionList$.push(
+                of(QuoteViewerActions.setSlideshowProgress({ slideshowProgress: 100 })),
+              );
+              const canShowNext = filter === Filter.BOOKMARKED
+                ? activeIndex < bookmarkedQuoteList.length - 1
+                : true;
+              if (canShowNext) {
+                actionList$.push(
+                  of(QuoteViewerActions.showNext()),
+                );
+              } else {
+                actionList$.push(of(QuoteViewerActions.stopSlideshow()));
+              }
+            } else {
+              actionList$.push(
+                of(QuoteViewerActions.setSlideshowProgress({ slideshowProgress: Math.ceil((currentStep / numSteps) * 100) })),
+              );
+            }
+            actionList$
+              .push(
+                of(QuoteViewerActions.setSlideStep({ slideStep: currentStep })),
+              );
+            return concat(
+              ...actionList$,
+            );
+          },
+        ),
+        takeUntil(
+          combineLatest(
+            [
+              this.quoteViewerService.displayMode$,
+              this.quoteViewerService.slideshowPlaybackState$,
+            ],
+          )
+            .pipe(
+              filter(
+                (
+                  [
+                    displayMode,
+                    slideshowPlaybackState,
+                  ]: [
+                    DisplayMode,
+                    SlideshowPlaybackState
+                  ],
+                ) => {
+                  return displayMode !== DisplayMode.SLIDESHOW || slideshowPlaybackState !== SlideshowPlaybackState.PLAYING;
+                },
+              ),
+            ),
         ),
       );
   }

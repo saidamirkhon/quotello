@@ -6,6 +6,7 @@ import {
   DisplayMode,
   Filter,
   Quote,
+  SlideshowPlaybackState,
 } from '@app-quote-viewer/model';
 import { QuoteViewerActions } from '@app-quote-viewer/store/actions';
 import { QuoteViewerSelectors } from '@app-quote-viewer/store/selectors';
@@ -31,6 +32,8 @@ export class QuoteViewerService {
   readonly bookmarkedQuoteList$: Observable<Quote[]> = this.store.select(QuoteViewerSelectors.selectBookmarkedQuoteList);
   readonly quoteList$: Observable<Quote[]> = this.store.select(QuoteViewerSelectors.selectQuoteList);
   readonly displayMode$: Observable<DisplayMode> = this.store.select(QuoteViewerSelectors.selectDisplayMode);
+  readonly slideshowPlaybackState$: Observable<SlideshowPlaybackState> = this.store.select(QuoteViewerSelectors.selectSlideshowPlaybackState);
+  readonly slideStep$: Observable<number> = this.store.select(QuoteViewerSelectors.selectSlideStep);
 
   showNext(): void {
     this.store.dispatch(QuoteViewerActions.showNext());

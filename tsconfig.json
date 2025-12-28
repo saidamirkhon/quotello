@@ -22,6 +22,9 @@
       "@app-model": [
         "src/app/_model/"
       ],
+      "@app-util": [
+        "src/app/_util/"
+      ],
     }
   },
   "angularCompilerOptions": {

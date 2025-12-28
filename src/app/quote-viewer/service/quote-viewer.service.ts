@@ -8,13 +8,15 @@ import {
   Quote,
   SlideshowPlaybackState,
 } from '@app-quote-viewer/model';
+import { QuoteViewerServiceBase } from '@app-quote-viewer/model/quote-viewer.service.base';
 import { QuoteViewerActions } from '@app-quote-viewer/state/quote-viewer.actions';
 import { QuoteViewerSelectors } from '@app-quote-viewer/state/quote-viewer.selectors';
 import { Store } from '@ngrx/store';
 import { Observable } from 'rxjs';
 
 @Injectable()
-export class QuoteViewerService {
+export class QuoteViewerService
+  extends QuoteViewerServiceBase {
   private readonly store = inject(Store);
   readonly quote$: Observable<Quote | null> = this.store.select(QuoteViewerSelectors.selectQuote);
   readonly slideProgress$: Observable<number> = this.store.select(QuoteViewerSelectors.selectSlideProgress);

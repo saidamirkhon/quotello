@@ -27,7 +27,7 @@ export module QuoteViewerStore {
     slideStep: number;
   }
 
-  const initialState: State = {
+  export const initialState: State = {
     quoteList: [],
     activeIndex: -1,
     slideProgress: 0,

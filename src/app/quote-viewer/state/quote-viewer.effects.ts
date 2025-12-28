@@ -231,7 +231,10 @@ export class QuoteViewerEffects {
                           {
                             activeIndex: filteredQuoteList.length === 1
                               ? -1
-                              : activeIndex - 1,
+                              : Math.max(
+                                activeIndex - 1,
+                                0,
+                              ),
                           },
                         ),
                     ),

@@ -4,7 +4,7 @@ import {
   Quote,
   SlideshowPlaybackState,
 } from '@app-quote-viewer/model';
-import { QuoteViewerStore } from '@app-quote-viewer/store/index';
+import { QuoteViewerStore } from '@app-quote-viewer/state/quote-viewer.store';
 import {
   createFeatureSelector,
   createSelector,
@@ -12,9 +12,9 @@ import {
 
 export module QuoteViewerSelectors {
   const selectState = createFeatureSelector<QuoteViewerStore.State>(QuoteViewerStore.key);
-  export const selectSlideshowProgress = createSelector(
+  export const selectSlideProgress = createSelector(
     selectState,
-    (state: QuoteViewerStore.State) => state.slideshowProgress,
+    (state: QuoteViewerStore.State) => state.slideProgress,
   );
   export const selectSlideshowPlaybackState = createSelector(
     selectState,

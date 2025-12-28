@@ -51,5 +51,7 @@
     color: var(--mat-sys-on-surface);
     opacity: var(--mat-sys-disabled-state-content-opacity, 0.38);
     font-size: 20px;
+    text-align: center;
+    line-height: 1.25;
   }
 }

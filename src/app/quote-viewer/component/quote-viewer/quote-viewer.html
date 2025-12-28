@@ -61,8 +61,16 @@
       [value]='filter()'
       (change)='toggleFilter.emit()'
     >
-      <mat-button-toggle [value]='Filter.ALL'>All</mat-button-toggle>
-      <mat-button-toggle [value]='Filter.BOOKMARKED'>Bookmarked</mat-button-toggle>
+      <mat-button-toggle
+        [matTooltip]='"All quotes"'
+        [value]='Filter.ALL'
+      >All
+      </mat-button-toggle>
+      <mat-button-toggle
+        [matTooltip]='"Only bookmarked quotes"'
+        [value]='Filter.BOOKMARKED'
+      >Bookmarked
+      </mat-button-toggle>
     </mat-button-toggle-group>
     <div class='slideshow-box'>
       <button
@@ -103,7 +111,7 @@
     } @else {
       <mat-progress-bar
         mode='determinate'
-        [value]='slideshowProgress()'
+        [value]='slideProgress()'
       >
       </mat-progress-bar>
     }

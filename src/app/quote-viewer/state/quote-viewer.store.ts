@@ -5,7 +5,7 @@ import {
   Quote,
   SlideshowPlaybackState,
 } from '@app-quote-viewer/model';
-import { QuoteViewerActions } from '@app-quote-viewer/store/actions';
+import { QuoteViewerActions } from '@app-quote-viewer/state/quote-viewer.actions';
 import {
   ActionReducer,
   createReducer,
@@ -18,7 +18,7 @@ export module QuoteViewerStore {
   export interface State {
     quoteList: Quote[];
     activeIndex: number;
-    slideshowProgress: number;
+    slideProgress: number;
     slideshowPlaybackState: SlideshowPlaybackState;
     filter: Filter;
     displayMode: DisplayMode;
@@ -30,7 +30,7 @@ export module QuoteViewerStore {
   const initialState: State = {
     quoteList: [],
     activeIndex: -1,
-    slideshowProgress: 0,
+    slideProgress: 0,
     slideshowPlaybackState: SlideshowPlaybackState.PAUSED,
     filter: Filter.ALL,
     displayMode: DisplayMode.MANUAL,
@@ -198,19 +198,19 @@ export module QuoteViewerStore {
           ...state,
           slideshowPlaybackState: SlideshowPlaybackState.PAUSED,
           displayMode: DisplayMode.MANUAL,
-          slideshowProgress: 0,
+          slideProgress: 0,
         };
       },
     ),
     on(
-      QuoteViewerActions.setSlideshowProgress,
+      QuoteViewerActions.setSlideProgress,
       (
         state: State,
-        { slideshowProgress },
+        { slideProgress },
       ): State => {
         return {
           ...state,
-          slideshowProgress,
+          slideProgress,
         };
       },
     ),

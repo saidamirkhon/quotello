@@ -40,7 +40,7 @@ import {
 )
 export class QuoteViewer {
   readonly quote = input.required<Quote | null>();
-  readonly slideshowProgress = input.required<number | null>();
+  readonly slideProgress = input.required<number | null>();
   readonly canShowNext = input.required<boolean | null>();
   readonly canShowPrevious = input.required<boolean | null>();
   readonly canPlaySlideshow = input.required<boolean | null>();

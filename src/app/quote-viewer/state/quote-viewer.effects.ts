@@ -12,7 +12,7 @@ import {
 } from '@app-quote-viewer/model';
 import { QuoteViewerApiService } from '@app-quote-viewer/service/quote-viewer-api.service';
 import { QuoteViewerService } from '@app-quote-viewer/service/quote-viewer.service';
-import { QuoteViewerActions } from '@app-quote-viewer/store/actions';
+import { QuoteViewerActions } from '@app-quote-viewer/state/quote-viewer.actions';
 import { QuoteMapper } from '@app-quote-viewer/util';
 import {
   Actions,
@@ -416,7 +416,7 @@ export class QuoteViewerEffects {
         switchMap(
           () => {
             return concat(
-              of(QuoteViewerActions.setSlideshowProgress({ slideshowProgress: 0 })),
+              of(QuoteViewerActions.setSlideProgress({ slideProgress: 0 })),
               this.getPlaySlideFlow$(),
             );
           },
@@ -527,7 +527,7 @@ export class QuoteViewerEffects {
             const isLastStep = currentStep === numSteps;
             if (isLastStep) {
               actionList$.push(
-                of(QuoteViewerActions.setSlideshowProgress({ slideshowProgress: 100 })),
+                of(QuoteViewerActions.setSlideProgress({ slideProgress: 100 })),
               );
               const canShowNext = filter === Filter.BOOKMARKED
                 ? activeIndex < bookmarkedQuoteList.length - 1
@@ -541,7 +541,7 @@ export class QuoteViewerEffects {
               }
             } else {
               actionList$.push(
-                of(QuoteViewerActions.setSlideshowProgress({ slideshowProgress: Math.ceil((currentStep / numSteps) * 100) })),
+                of(QuoteViewerActions.setSlideProgress({ slideProgress: Math.ceil((currentStep / numSteps) * 100) })),
               );
             }
             actionList$

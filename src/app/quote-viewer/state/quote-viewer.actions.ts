@@ -83,10 +83,10 @@ export module QuoteViewerActions {
   export const resumeSlideshow = createAction(
     '[Quote Viewer] Resume slideshow',
   );
-  export const setSlideshowProgress = createAction(
-    '[Quote Viewer] Set slideshow progress',
+  export const setSlideProgress = createAction(
+    '[Quote Viewer] Set slide progress',
     props<{
-      slideshowProgress: number;
+      slideProgress: number;
     }>(),
   );
   export const playSlide = createAction(

@@ -64,4 +64,8 @@ export class QuoteViewerService
   init(): void {
     this.store.dispatch(QuoteViewerActions.init());
   }
+
+  constructor() {
+    super();
+  }
 }

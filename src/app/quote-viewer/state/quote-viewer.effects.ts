@@ -3,17 +3,19 @@ import {
   Injectable,
 } from '@angular/core';
 import { LocalStorageKey } from '@app-model';
-import { SLIDE_DISPLAY_DURATION_IN_MS } from '@app-quote-viewer/constant';
+import {
+  QUOTE_PROVIDER_LIST_INJECTION_TOKEN,
+  SLIDE_DISPLAY_DURATION_IN_MS,
+} from '@app-quote-viewer/constant';
 import {
   DisplayMode,
   Filter,
   Quote,
+  QuoteApiService,
   SlideshowPlaybackState,
 } from '@app-quote-viewer/model';
-import { QuoteViewerApiService } from '@app-quote-viewer/service/quote-viewer-api.service';
 import { QuoteViewerService } from '@app-quote-viewer/service/quote-viewer.service';
 import { QuoteViewerActions } from '@app-quote-viewer/state/quote-viewer.actions';
-import { QuoteMapper } from '@app-quote-viewer/util';
 import {
   Actions,
   createEffect,
@@ -27,7 +29,6 @@ import {
   EMPTY,
   filter,
   from,
-  map,
   merge,
   Observable,
   of,
@@ -44,7 +45,7 @@ import {
 @Injectable()
 export class QuoteViewerEffects {
   private readonly actions: Actions = inject(Actions);
-  private readonly quoteViewerApiService: QuoteViewerApiService = inject(QuoteViewerApiService);
+  private readonly quoteProviderList: QuoteApiService[] = inject(QUOTE_PROVIDER_LIST_INJECTION_TOKEN);
   private readonly quoteViewerService: QuoteViewerService = inject(QuoteViewerService);
 
   init$ = createEffect(
@@ -452,23 +453,13 @@ export class QuoteViewerEffects {
 
   private fetchQuote(): Observable<Quote> {
     return merge(
-      this.quoteViewerApiService
-        .fetchQuoteFromDummyJson()
-        .pipe(
-          map(QuoteMapper.fromDummyJson),
-          catchError(() => EMPTY),
-        ),
-      this.quoteViewerApiService
-        .fetchQuoteFromQuotable()
-        .pipe(
-          map(QuoteMapper.fromQuotable),
-          catchError(() => EMPTY),
-        ),
-      this.quoteViewerApiService
-        .fetchQuoteFromQuoteSlate()
-        .pipe(
-          map(QuoteMapper.fromQuoteSlate),
-          catchError(() => EMPTY),
+      ...this.quoteProviderList
+        .map(
+          (quoteProvider: QuoteApiService) => quoteProvider
+            .fetchQuote()
+            .pipe(
+              catchError(() => EMPTY),
+            ),
         ),
     )
       .pipe(

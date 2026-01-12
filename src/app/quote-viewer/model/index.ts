@@ -5,3 +5,4 @@ export { SlideshowPlaybackState } from './slideshow-playback-state';
 export type { QuoteFromQuotableDto } from './quote-from-quotable-dto';
 export type { QuoteFromDummyJsonDto } from './quote-from-dummy-json-dto';
 export type { QuoteFromQuoteSlateDto } from './quote-from-quote-slate-dto';
+export type { QuoteApiService } from './quote-api.service';
